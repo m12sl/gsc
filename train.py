@@ -172,12 +172,6 @@ def main():
                              global_step=epoch)
             utils.store(history_path, train_history)
             utils.store(history_path, val_history)
-        # let's try to import embeddings table
-        print('Store embeddings')
-        embeddings = sess.run(model.embeddings)
-        path = os.path.join(args.save_dir, 'vectors')
-        np.save(path, embeddings)
-
 
 
 if __name__ == "__main__":
