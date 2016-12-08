@@ -48,14 +48,13 @@ class Datagen:
         idx = np.random.choice(self.N, size=self.args.batch_size)
         # now we could use larger dtype
         x = np.zeros((self.args.batch_size, self.args.seq_length), dtype=np.int32)
-        y = np.zeros((self.args.batch_size, ), dtype=np.int32)
+        y = np.zeros((self.args.batch_size, 1), dtype=np.int32)
 
-        for i in idx:
+        for line, i in enumerate(idx):
             max_len = len(self.data[i]) - self.args.seq_length
             beg = np.random.randint(0, max_len)
-            x[i, :] = self.data[i][beg: beg + self.args.seq_length]
-            y[i] = self.labels[i]
-
+            x[line, :] = self.data[i][beg: beg + self.args.seq_length]
+            y[line, 0] = self.labels[i]
         return x, y
 
     __next__ = next
@@ -101,10 +100,10 @@ def run_epoch(session, model, datagen, args, op, verbose=False, add_metrics=Fals
         p = np.concatenate([_ for _ in predictions if _ is not None])
         t = np.concatenate([_ for _ in true_values if _ is not None])
         auc = roc_auc_score(t, p)
-        print('AUC: ', auc)
+        print('{} AUC: {:.3f}'.format(prefix, auc))
         history.append((prefix + '_auc', auc))
         acc = accuracy_score(t, p > 0.5)
-        print('ACC: ', acc)
+        print('{} ACC: {:.3f}'.format(prefix, acc))
         history.append((prefix + '_acc', acc))
     if verbose:
         return avg_loss, history
@@ -124,7 +123,7 @@ def main():
         fout.write(json.dumps(vars(args)))
         fout.write('\ntype\tloss\n')
 
-    whole_data, whole_labels = utils.prepare_data(args.data)
+    whole_data, whole_labels = utils.prepare_data(args.seq_length, path=args.data, seed=args.seed)
 
     N = int(args.outer_split * len(whole_data))
     val_outer = whole_data[:N], whole_labels[:N]
@@ -169,9 +168,8 @@ def main():
                                                   verbose=True,
                                                   add_metrics=True,
                                                   prefix='val')
-            if not args.dry:
-                model.saver.save(sess, os.path.join(args.save_dir, "scbow.ckpt"),
-                                 global_step=epoch)
+            model.saver.save(sess, os.path.join(args.save_dir, "scbow.ckpt"),
+                             global_step=epoch)
             utils.store(history_path, train_history)
             utils.store(history_path, val_history)
         # let's try to import embeddings table
