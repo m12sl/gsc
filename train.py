@@ -20,7 +20,7 @@ def _parse_args():
     parser.add_argument('--steps', default=1000, type=int, help='Steps per epoch')
     parser.add_argument('--epochs', default=10, type=int, help='Number of epochs')
     parser.add_argument('--keep_prob', default=1.0, help='Keep prob for dropout')
-    parser.add_argument('--learning_rate', default=0.01, type=float, help='Learning rate')
+    parser.add_argument('--learning_rate', default=0.001, type=float, help='Learning rate')
     parser.add_argument('--seed', default=1337, type=int, help='Fixed seed, repro style')
 
     parser.add_argument('--outer_split', default=0.2, type=float)
