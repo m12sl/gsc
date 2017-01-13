@@ -3,6 +3,7 @@ Just basic CNN model for window
 """
 import tensorflow as tf
 from tensorflow.contrib import layers
+import tensorflow.contrib as ctf
 
 
 class Model:
@@ -21,11 +22,12 @@ class Model:
             x = tf.expand_dims(emb, 1)
             print(x)
 
-            for rate in [1, 1, 2, 4, 8]:
-                x = layers.convolution2d(x, 32, [1, 3],
+            for rate in [1, 2, 4, 8, 16, 32]:
+                x = layers.convolution2d(x, 128, [1, 3],
                                          padding='VALID',
                                          rate=rate,
-                                         activation_fn=tf.nn.elu)
+                                         activation_fn=tf.nn.elu,
+                                         normalizer_fn=layers.batch_norm)
                 print(x)
 
             global_max_pooling = tf.squeeze(tf.reduce_max(x, [2]))

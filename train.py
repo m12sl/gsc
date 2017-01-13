@@ -65,7 +65,8 @@ class Datagen:
 
 def run_epoch(session, model, datagen, args, op, verbose=False, add_metrics=False,
               rolling_buf=-1, prefix='', keep_prob=1.0):
-    datagen.reset()
+    if prefix == 'val':
+        datagen.reset()
     avg_loss = 0.0
     counter = 0
     history = []
@@ -135,7 +136,6 @@ def main():
     print('Build model')
     model = Model(args)
     config = tf.ConfigProto()
-    config.gpu_options.per_process_gpu_memory_fraction = 0.45
 
     with tf.Session(config=config) as sess:
         print('init weights')
