@@ -2,7 +2,7 @@ import os
 import argparse
 import numpy as np
 import tensorflow as tf
-from model import Model
+from model import Model, ExceptionModel
 from tqdm import tqdm
 import utils
 import json
@@ -14,7 +14,7 @@ def _parse_args():
     parser.add_argument('--data', default='./data', help='Folder with data files')
     parser.add_argument('--save_dir', default='./tmp/model0', help='Path to save model')
     parser.add_argument('--vocab_size', type=int, default=4)
-    parser.add_argument('--dim', default=32)
+    parser.add_argument('--dim', default=8)
     parser.add_argument('--batch_size', default=32, type=int)
     parser.add_argument('--seq_length', default=128, type=int, help='Len of chunk to classify')
     parser.add_argument('--steps', default=1000, type=int, help='Steps per epoch')
@@ -22,6 +22,7 @@ def _parse_args():
     parser.add_argument('--keep_prob', default=1.0, help='Keep prob for dropout')
     parser.add_argument('--learning_rate', default=0.001, type=float, help='Learning rate')
     parser.add_argument('--seed', default=1337, type=int, help='Fixed seed, repro style')
+    parser.add_argument('--model', default='basic', type=str, help='Model')
 
     parser.add_argument('--outer_split', default=0.2, type=float)
     parser.add_argument('--inner_split', default=0.2, type=float)
@@ -134,7 +135,10 @@ def main():
     valgen = Datagen(val_outer, args)
 
     print('Build model')
-    model = Model(args)
+    if args.model == 'exception':
+        model = ExceptionModel(args)
+    else:
+        model = Model(args)
     config = tf.ConfigProto()
 
     with tf.Session(config=config) as sess:
