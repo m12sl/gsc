@@ -23,11 +23,15 @@ class Model:
             print(x)
 
             for rate in [1, 2, 4, 8, 16, 32]:
-                x = layers.convolution2d(x, 128, [1, 3],
-                                         padding='VALID',
-                                         rate=rate,
-                                         activation_fn=tf.nn.elu,
-                                         normalizer_fn=layers.batch_norm)
+                # let's trye gated convolutions!
+                px = layers.convolution2d(x, 32, [1, 3],
+                    padding='VALID',
+                    rate=rate)
+                gate = layers.convolution2d(x, 32, [1, 3],
+                    padding='VALID',
+                    rate=rate,
+                    activation_fn=tf.nn.sigmoid)
+                x = px * gate
                 print(x)
 
             global_max_pooling = tf.squeeze(tf.reduce_max(x, [2]))
